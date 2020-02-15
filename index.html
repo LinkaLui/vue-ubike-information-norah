@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>YouBike 臺北市公共自行車即時資訊</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+    integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+  <style>
+    body {
+      padding: 1em;
+    }
+
+    .caret {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      margin-left: 2px;
+      vertical-align: middle;
+      border-top: 4px dashed;
+      border-top: 4px solid\9;
+      border-right: 4px solid transparent;
+      border-left: 4px solid transparent;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <h1>YouBike 臺北市公共自行車即時資訊</h1>
+      <!--search block start-->
+      <div class="row m-3">
+        <div class="col-12 input-group">
+          <input type="text" class="form-control" placeholder="請輸入關鍵字" v-model="searchInput"
+            v-on:keyup.enter="search()">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" v-on:click="search()">搜尋</button>
+          </div>
+        </div>
+      </div>
+      <div class="row m-3">
+        <div class="col-12 form-inline justify-content-around">
+          <div v-for="area in areaInfo" class="form-group form-check form-inline">
+            <input type="checkbox" v-model="areaChoose" class="form-check-input" :value="area">
+            <label class="form-check-label">{{area}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="row m-3">
+        <div class="col-12 form-inline justify-content-end">
+          <label class="form-label mx-3">選擇排序方式：</label>
+          <select v-model="selectedSort" class="form-select form-select--small mr-3">
+            <option value="snoAsc">場站代碼 小->大</option>
+            <option value="snoDesc">場站代碼 大->小</option>
+            <option value="sbiAsc">目前可用車輛 少->多</option>
+            <option value="sbiDesc">目前可用車輛 多->少</option>
+            <option value="totAsc">總停車格 少->多</option>
+            <option value="totDesc">總停車格 多->少</option>
+            <option value="mdayAsc">資料更新時間 舊->新</option>
+            <option value="mdayDesc">資料更新時間 新->舊</option>
+          </select>
+          <label class="form-label mx-2">選擇每頁顯示數量：</label>
+          <select v-model="selectedValue" class="form-select form-select--small mr-3">
+            <option v-for="(i,index) in 4" :value="`${i*25}`">{{i*25}}</option>
+          </select>
+        </div>
+      </div>
+      <!--search block end-->
+      <div class="row m-3">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>場站名稱</th>
+              <th>場站區域</th>
+              <th>目前可用車輛</th>
+              <th>總停車格</th>
+              <th>資料更新時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="s in filterResult.slice(beginItem,endItem)">
+              <td>{{ s.sno }}</td>
+              <td>{{ s.sna }}</td>
+              <td>{{ s.sarea }}</td>
+              <td>{{ s.sbi }}</td>
+              <td>{{ s.tot }}</td>
+              <td>{{ s.mday | timeFormat }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- pagination start-->
+      <div class="row m-3">
+        <div class="col d-flex justify-content-center">
+          <ul class="pagination">
+            <li class="page-item" v-if="preShow"><a class="page-link" v-on:click="pagePreClick()">上一頁</a></li>
+            <li class="page-item" v-for="p in sum">
+              <a class="page-link" :class="p==curPage?'font-weight-bold':''" v-on:click="pageClick(p)">{{p}}</a>
+            </li>
+            <li class="page-item" v-if="nextShow"><a class="page-link" v-on:click="pageNextClick()">下一頁</a></li>
+          </ul>
+        </div>
+      </div>
+      <!-- pagination end-->
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.js"></script>
+  <script src="scripts.js"></script>
+
+</body>
+
+</html>
